@@ -1,21 +1,25 @@
 pragma solidity >=0.4.22 <0.9.0;
 import "../ERC20Factory/ERC20Factory.sol";
+import '../interface/IERC20.sol';
 contract DaoFactory{
     address public owner;
     address public erc20Factory;
+    address public token;
     uint public index;
-    
-    //userDaoInfo[]public userlist;
+    bool public tokenStatus;
+    uint public validityDay;
+    //uint public sillWay;
     mapping(address=>uint[])public userDaoNumber;
     struct DaoInfo{
+        address owner;
         string name;
         string abbr;
         string logo;
         string des;
         string types;
-        // address authority;
-        // address manage;
-        // address vault;
+        address tokenAddress;
+        uint fee;
+        uint sillWay;
     }
     DaoInfo[]public list;
     DaoInfo[]public list2;
@@ -29,50 +33,64 @@ contract DaoFactory{
         require(owner== msg.sender, "Ownable: caller is not the owner");
         _;
     }
-    function createDaoAndToken(string memory _name,string memory  _abbr,string memory _logo,string memory _des,string memory _type ,string memory _tokenName,string memory _symble,uint8 _decimals, uint _totalSupply)public{
-        require(msg.sender != address(0), "Invalid address"); 
-        // for(uint i=0;i<daoType.length;i++){
-        //     if(daoType[i]==_type){
-
-        //     }
-        // }
-        // require(_type="childDao","Create type error");  
-        address _erc20 = ERC20Factory(erc20Factory).creatToken(_name,_symble,_decimals,msg.sender,_totalSupply);
+    function  ifHaveToken(bool tokenStatus)public view returns(bool){
+       return tokenStatus;
+    }
+    function createDaoAndToken(string memory _name,string memory  _abbr,string memory _logo,string memory _des,string memory _type ,string memory _tokenName,string memory _symble,uint8 _decimals, uint _totalSupply)public {
+        require(msg.sender != address(0), "Invalid address");  
+        //string memory a=daoType[1];
+        require(keccak256(abi.encodePacked(_type))==keccak256(abi.encodePacked("childDao"))||keccak256(abi.encodePacked(_type))==keccak256(abi.encodePacked("independentDao"))||keccak256(abi.encodePacked(_type))==keccak256(abi.encodePacked("allianceDao")),"Type error"); 
+        token = ERC20Factory(erc20Factory).creatToken(_name,_symble,_decimals,msg.sender,_totalSupply); 
         DaoInfo memory info=DaoInfo({
+            owner:msg.sender,
             name:_name,
             abbr:_abbr,
             logo:_logo,
             des:_des,
-            types:_type
-            // authority:
-            // manage:
-            // vault:
+            types:_type,
+            tokenAddress:token,
+            fee:0,
+            sillWay:0
         });
         list.push(info);
         uint userIndex=userDaoNumber[msg.sender].length+1;
         userDaoNumber[msg.sender].push(userIndex);
-        userDaoInfo[msg.sender][userIndex]=DaoInfo(_name,_abbr,_logo,_des,_type);
+        userDaoInfo[msg.sender][userIndex]=DaoInfo(msg.sender,_name,_abbr,_logo,_des,_type,token,0,0);
+        list2.push(userDaoInfo[msg.sender][userIndex]);
         index++;
 
     }
 
-      function createDao(string memory _name,string memory  _abbr,string memory _logo,string memory _des,string memory _type )public{
-             
+      function createDao(string memory _name,string memory  _abbr,string memory _logo,string memory _des,string memory _type ,address _erc20)public{
+        require(msg.sender != address(0), "Invalid address");  
+        require(keccak256(abi.encodePacked(_type))==keccak256(abi.encodePacked("childDao"))||keccak256(abi.encodePacked(_type))==keccak256(abi.encodePacked("independentDao"))||keccak256(abi.encodePacked(_type))==keccak256(abi.encodePacked("allianceDao")),"Type error"); 
         DaoInfo memory info=DaoInfo({
+            owner:msg.sender,
             name:_name,
             abbr:_abbr,
             logo:_logo,
             des:_des,
-            types:_type
-            // authority:
-            // manage:
-            // vault:
+            types:_type,
+            tokenAddress:_erc20,
+            fee:0,
+            sillWay:0
         });
         list.push(info);
         uint userIndex=userDaoNumber[msg.sender].length+1;
         userDaoNumber[msg.sender].push(userIndex);
-        userDaoInfo[msg.sender][userIndex]=DaoInfo(_name,_abbr,_logo,_des,_type);
+        userDaoInfo[msg.sender][userIndex]=DaoInfo(msg.sender,_name,_abbr,_logo,_des,_type,_erc20,0,0);
+        list2.push(userDaoInfo[msg.sender][userIndex]);
         index++;
+    }
+
+       function setJoinDaoSill(uint fees,uint _validityDay,uint number,uint ways)public{
+           // require(condition);
+            require(ways==1||ways==2||ways==3||ways==4,"Select the correct conditions for joining");
+            getuserDaoInfo(number).sillWay=ways;
+            getuserDaoInfo(number).fee=fees;
+            //require(IERC20(getuserDaoInfo(number).tokenAddress).balanceOf(msg.sender)>100,"There are not enough tokens ");
+            validityDay=_validityDay;
+
     }
 
     function getDaonumber()public view returns(uint){
@@ -83,15 +101,17 @@ contract DaoFactory{
         return userDaoNumber[msg.sender].length;
     }
 
-    function getDaoInfo() public view returns(DaoInfo memory){
-
-        return list[index];
+    function getDaoInfo(uint number) public view returns(DaoInfo memory){
+        require(number<=index,"Exceeds the number of DAOs built");
+        return list[number];
     }
 
-    function getuserDaoInfo() public view returns(DaoInfo memory){
-        for(uint i=0;i<userDaoNumber[msg.sender].length;i++){
-            return userDaoInfo[msg.sender][i];
-            }
-    }
+    function getuserDaoInfo(uint number) public view returns(DaoInfo memory){
+        require(number<=userDaoNumber[msg.sender].length,"Exceeds the number of DAOs built");
+        return list2[number];
 
+    }
+    function getDaoType(uint number)public view returns(string memory){
+        return list[number].types;
+    }
 }
