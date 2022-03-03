@@ -40,7 +40,8 @@ contract vault {
         info[msg.sender].valutAddress=address(this);
         info[msg.sender].depositAmount=amount;
         info[msg.sender].owner=msg.sender;
-        userInfo memory deleteInfos=userInfo({
+
+        userInfo memory depositInfos=userInfo({
             valutAddress:address(this),
             owner:msg.sender,
             depositAmount:info[msg.sender].depositAmount,
@@ -48,7 +49,7 @@ contract vault {
             withdrawalTime:blockTime,
             withdrawalAmount:amount
         });
-        allDepositInfo.push(deleteInfos);
+        allDepositInfo.push(depositInfos);
         vaultAmount=vaultAmount+amount;
     }
      function withdraw(address _rbd,address to ,uint amount,uint number)public{
@@ -69,7 +70,7 @@ contract vault {
             withdrawalTime:blockTime,
             withdrawalAmount:amount
         });
-        
+
         allWithdrawalInfo.push(withdrawInfos);
         vaultAmount=vaultAmount-amount;
     }
@@ -85,14 +86,14 @@ contract vault {
 
     }
 
-    function getUserWithdrawInfo(uint _index)public view returns(userInfo memory){
-        return allWithdrawalInfo[_index];
+    function getUserWithdrawInfo()public view returns(userInfo memory){
+        return info[msg.sender];
 
     }
 
     function getUserDepositInfo(uint _index)public view returns(userInfo memory){
 
-        return allDepositInfo[_index];
+        //return info[msg.sender];
 
     }
 
