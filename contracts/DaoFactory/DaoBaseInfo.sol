@@ -9,6 +9,7 @@ contract DaoBaseInfo{
     string  logo;
     string desc;
     }
+    
     Info[]public list;
    
     constructor (address _owner){
@@ -43,6 +44,7 @@ contract DaoBaseInfo{
     }
 
     function setDesc(string memory _desc,uint index) public{
+        
         require(owner==msg.sender,"do not have permission ");
         list[index].desc=_desc;
     }
