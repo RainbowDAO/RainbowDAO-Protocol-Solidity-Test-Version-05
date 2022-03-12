@@ -40,6 +40,8 @@ contract vault {
         info[msg.sender].valutAddress=address(this);
         info[msg.sender].depositAmount=amount;
         info[msg.sender].owner=msg.sender;
+        info[msg.sender].withdrawalTime=0;
+        info[msg.sender].withdrawalAmount=0;
 
         userInfo memory depositInfos=userInfo({
             valutAddress:address(this),
@@ -93,7 +95,7 @@ contract vault {
 
     function getUserDepositInfo(uint _index)public view returns(userInfo memory){
 
-        //return info[msg.sender];
+        return info[msg.sender];
 
     }
 
