@@ -85,8 +85,8 @@ contract JoinDao{
     //     return userid[address(this)];
     // }
 
-    function  getDaoInfo(uint number)public view returns(DaoInfo memory){
-        return DaoFactory(daoFactory).list[number];
-    }
+    // function  getDaoInfo(uint number)public view returns(DaoInfo memory){
+    //     return DaoFactory(daoFactory).list[number];
+    // }
 
 }

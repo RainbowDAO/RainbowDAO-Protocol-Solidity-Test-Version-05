@@ -33,7 +33,7 @@ contract ManagerSet{
 
             if(ifHaveMulti=false){
                 address newAddress =address(new MultiSign(_minSignCount, _managers,address(this)));
-                singleManagerAddress=newAddress;
+                multiSignWalletAddress=newAddress;
             }    
         }
         if(keccak256(abi.encodePacked(managerType))==keccak256(abi.encodePacked("governanceToken"))){
